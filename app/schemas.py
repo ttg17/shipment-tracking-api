@@ -1,11 +1,6 @@
-import random
 from enum import Enum
 
 from pydantic import BaseModel, Field
-
-
-def random_destination():
-    return random.randint(11000, 11999)
 
 
 class ShipmentStatus(str, Enum):
@@ -15,13 +10,24 @@ class ShipmentStatus(str, Enum):
     delivered = "delivered"
 
 
-class Shipment(BaseModel):
-    content: str = Field(description="Content of the shipment", max_length=100)
-    weight: float = Field(ge=1, le=25, description="Weight of the shipment in kg")
-    destination: int = Field(
-        default_factory=random_destination,
-        description="Destination of the shipment",
-    )
+class BaseShipment(BaseModel):
+    content: str = Field(max_length=100)
+    weight: float = Field(ge=1, le=25)
+    destination: int
+
+class ShipmentRead(BaseShipment):
     status: ShipmentStatus
+
+class ShipmentCreate(BaseShipment):
+    pass
+
+class ShipmentUpdate(BaseModel):
+    content: str | None = Field(max_length=100, default=None)
+    weight: float | None = Field(default=None, le=25)
+    destination: int | None = Field(default=None)
+    status: ShipmentStatus
+
+
+
 
 
