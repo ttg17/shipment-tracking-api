@@ -1,0 +1,30 @@
+# Environments
+venv/
+env/
+.env
+
+# Python byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Type checking
+.mypy_cache/
+
+# Databases
+*.sqlite3
+*.db
+
+# IDEs / Editors
+.vscode/
+.idea/
+*.swp
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# OS Files
+.DS_Store
+Thumbs.db
