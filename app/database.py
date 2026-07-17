@@ -1,18 +1,28 @@
-import json
+import sqlite3
 
-shipments = {}
+connection = sqlite3.connect("sqlite.db")
+cursor = connection.cursor()
+
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS shipment 
+        (id INTEGER, content TEXT, weight REAL, status TEXT)
+""")
 
 
-with open("shipments.json") as json_file:
-    data = json.load(json_file)
+# cursor.execute("""
+#     INSERT INTO shipment VALUES (12703, 'metal gear', 12, 'placed')               
+# """)
+# connection.commit()
 
-    for value in data:
-        shipments[value["id"]] = value
 
+cursor.execute("""
+    SELECT * FROM shipment WHERE id = 12703
+""")
+result = cursor.fetchmany(2)
+print(result)
 
-def save():
-    with open("shipments.json", "w") as json_file:
-        json.dump(
-            list(shipments.values()),
-            json_file,
-        )
+# cursor.execute("DELETE FROM shipment where id == 12701")
+# connection.commit()
+
+connection.close()
+

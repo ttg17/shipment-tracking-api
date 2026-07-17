@@ -3,7 +3,7 @@ from typing import Any
 from fastapi import FastAPI, HTTPException, status
 from scalar_fastapi import get_scalar_api_reference
 
-from app.database import save, shipments
+from app.database import shipments
 from app.schemas import ShipmentCreate, ShipmentRead, ShipmentUpdate
 
 app = FastAPI()
