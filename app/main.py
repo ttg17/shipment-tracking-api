@@ -3,54 +3,46 @@ from typing import Any
 from fastapi import FastAPI, HTTPException, status
 from scalar_fastapi import get_scalar_api_reference
 
-from app.database import shipments
+from app.database import Database
 from app.schemas import ShipmentCreate, ShipmentRead, ShipmentUpdate
 
 app = FastAPI()
 
 
+db = Database()
 
 
+# Read a shipment by id
 @app.get("/shipment", response_model=ShipmentRead)
-def get_shipment(id: int | None = None):
-    if not id:
-        maxId = max(shipments.keys())
-        return shipments[maxId]
-    if id not in shipments:
+def get_shipment(id: int):
+    shipment = db.get(id)
+
+    if shipment is None:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Given id doesn't exist!"
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Given id doesn't exist!",
         )
 
-    return shipments[id]
+    return shipment
 
 
 @app.post("/shipment", response_model=None)
-def submit_shipment(shipment: ShipmentCreate) -> dict[str, int]:
-    if shipment.weight > 25:
-        raise HTTPException(
-            status_code=status.HTTP_406_NOT_ACCEPTABLE, detail="Maximum weight is 25 kg"
-        )
-    new_id = max(shipments.keys()) + 1
-    shipments[new_id] = {
-        **shipment.model_dump(),
-        "id": new_id,
-        "status": "placed",
-    }
-    save()
+def submit_shipment(shipment: ShipmentCreate) -> dict[str, int]:    
+    new_id = db.create(shipment)
     return {"id": new_id}
 
 
 @app.patch("/shipment", response_model=ShipmentRead)
-def patch_shipment(id: int, body: ShipmentUpdate):
-    shipments[id].update(body.model_dump(exclude_none=True))
-    save()
-    return shipments[id]
+def patch_shipment(id: int, shipment: ShipmentUpdate):
+    result = db.update(id, shipment)
+    return result
 
 
 @app.delete("/shipment")
 def delete_shipment(id: int) -> dict[str, Any]:
-    shipments.pop(id)
+    db.delete(id)
     return {"detail": f"Shipment with id #{id} is deleted!"}
+
 
 
 # Scalar API Documentation
