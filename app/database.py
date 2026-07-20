@@ -5,11 +5,10 @@ from app.schemas import ShipmentCreate, ShipmentUpdate
 
 
 class Database:
-    def __init__(self):
+
+    def connect_to_db(self):
         self.conn = sqlite3.connect("sqlite.db", check_same_thread=False)
         self.cur = self.conn.cursor()
-        self.create_table()
-
 
 
     def create_table(self):
@@ -17,7 +16,6 @@ class Database:
             CREATE TABLE IF NOT EXISTS shipment 
                 (id INTEGER PRIMARY KEY, content TEXT, weight REAL, status TEXT)
         """)
-
 
 
     def create(self, shipment: ShipmentCreate) -> int:
@@ -38,7 +36,6 @@ class Database:
         self.conn.commit()
 
         return new_id
-
 
 
     def get(self, id: int) -> dict[str, Any] | None:
@@ -70,7 +67,6 @@ class Database:
         return self.get(id)
 
 
-
     def delete(self, id: int):
         self.cur.execute("""
            DELETE FROM shipment
@@ -81,3 +77,20 @@ class Database:
 
     def close(self):
         self.conn.close()
+
+
+    def __enter__(self):
+        print("entering the context")
+        self.connect_to_db()
+        self.create_table()
+        return self
+    
+    def __exit__(self, *arg):
+        print("exiting the context")
+        self.close()
+    
+
+
+with Database() as db:
+    print(db.get(12703))
+    print(db.get(12704))
